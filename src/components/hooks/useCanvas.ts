@@ -32,22 +32,6 @@ export const useCanvas = (id: string) => {
 
     const { selectedAction, selectedColor, selectedWidth } = useAppSelector((state) => state.tools);
 
-    console.log(elements);
-
-    // window.addEventListener('paste', async (e: any) => {
-    //     e.preventDefault();
-    //     e.stopPropagation();
-    //     // let file = e.clipboardData.items[0].getAsFile();
-    //     // let objectUrl = URL.createObjectURL(file);
-
-    //     const image = e.clipboardData.files[0];
-
-    //     if (image) {
-    //         const objectUrl = URL.createObjectURL(image);
-    //         updateElement({ id: elements.length - 1, x1: 0, y1: 0, x2: 200, y2: 200, action: ToolsAction.IMAGE, selected: true, url: objectUrl });
-    //     }
-    // });
-
     React.useLayoutEffect(() => {
         const canvas = document.getElementById(id) as HTMLCanvasElement;
         const context = canvas.getContext('2d');
@@ -93,6 +77,14 @@ export const useCanvas = (id: string) => {
                     context.stroke();
                     break;
                 }
+                case ToolsAction.IMAGE: {
+                    const img = new Image();
+                    img.src = element.url || '';
+                    img.onload = () => {
+                        context.drawImage(img, 0, 0);
+                    };
+                    break;
+                }
             }
         }
     };
@@ -102,21 +94,6 @@ export const useCanvas = (id: string) => {
         elementsCopy[element.id] = element;
         setElements(elementsCopy);
     };
-
-    // const createElement = (element: Omit<Element, 'roughElement'>) => {
-    //     if (element.action === ToolsAction.LINE) {
-    //         const roughElement = generator.line(element.x1, element.y1, element.x2, element.y2, { stroke: element.color });
-    //         return { ...element, roughElement };
-    //     } else if (element.action === ToolsAction.RECTANGLE) {
-    //         const roughElement = generator.rectangle(element.x1, element.y1, element.x2 - element.x1, element.y2 - element.y1, {
-    //             stroke: element.color,
-    //         });
-    //         return { ...element, roughElement };
-    //     } else {
-    //         const roughElement = generator.line(element.x1, element.y1, element.x2, element.y2, { stroke: element.color });
-    //         return { ...element, roughElement };
-    //     }
-    // };
 
     const handleMouseDown = (e: any) => {
         const { clientX, clientY } = e;
@@ -142,6 +119,29 @@ export const useCanvas = (id: string) => {
                 width: selectedWidth,
             });
             setCanvasAction(CanvasAction.DRAWING);
+        }
+    };
+
+    const handlePaste = (e: any) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const image = e.clipboardData.files[0];
+        console.log(image);
+
+        if (image) {
+            const objectUrl = URL.createObjectURL(image);
+            addOrUpdateElement({
+                id: elements.length,
+                x1: 0,
+                y1: 0,
+                x2: 200,
+                y2: 200,
+                action: ToolsAction.IMAGE,
+                url: objectUrl,
+                width: selectedWidth,
+                color: selectedColor,
+            });
         }
     };
 
@@ -179,7 +179,7 @@ export const useCanvas = (id: string) => {
 
     const handleKeyDown = (e: any) => {};
 
-    return { handleMouseDown, handleMouseMove, handleMouseUp, handleKeyDown };
+    return { handlePaste, handleMouseDown, handleMouseMove, handleMouseUp, handleKeyDown };
 };
 
 const distance = (a: { x: number; y: number }, b: { x: number; y: number }) => Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));

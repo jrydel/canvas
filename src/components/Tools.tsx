@@ -26,15 +26,15 @@ const Tools: React.FC = () => {
 
     return (
         <div className="cursor-default">
-            <div className="select-none fixed bg-white top-4 left-1/2 -translate-x-1/2 shadow-md rounded-lg flex items-center p-2 space-x-2 border">
+            <div className="fixed flex items-center p-2 space-x-2 -translate-x-1/2 bg-white border rounded-lg shadow-md select-none top-4 left-1/2">
                 {tools.map((it, i) => (
                     <Tool key={i} tool={it} />
                 ))}
             </div>
             {[ToolsAction.DRAW, ToolsAction.LINE, ToolsAction.RECTANGLE, ToolsAction.CIRCLE].includes(selectedAction) && (
-                <div className="fixed z-10 bg-white top-1/2 right-4 -translate-y-1/2 shadow-md rounded-lg border p-2 grid grid-cols-1 gap-4">
+                <div className="fixed z-10 grid grid-cols-1 gap-4 p-2 -translate-y-1/2 bg-white border rounded-lg shadow-md top-1/2 right-4">
                     <div className="flex flex-col space-y-2">
-                        <span className="font-bold text-sm text-center">Line width</span>
+                        <span className="text-sm font-bold text-center">Line width</span>
                         <div className="flex items-center justify-around">
                             {widths.map((it, i) => (
                                 <button
@@ -47,7 +47,7 @@ const Tools: React.FC = () => {
                         </div>
                     </div>
                     <div className="flex flex-col space-y-2">
-                        <span className="font-bold text-sm  text-center">Colors</span>
+                        <span className="text-sm font-bold text-center">Colors</span>
                         <div className="grid grid-cols-2 gap-2">
                             {colors.map((it, i) => (
                                 <button

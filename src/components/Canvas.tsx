@@ -2,7 +2,12 @@ import React from 'react';
 import { useCanvas } from './hooks/useCanvas';
 
 const Canvas: React.FC = () => {
-    const { handleMouseDown, handleMouseMove, handleMouseUp, handleKeyDown } = useCanvas('canvas');
+    const { handlePaste, handleMouseDown, handleMouseMove, handleMouseUp, handleKeyDown } = useCanvas('canvas');
+
+    React.useEffect(() => {
+        window.addEventListener('paste', handlePaste);
+        return () => window.removeEventListener('paste', handlePaste);
+    }, []);
 
     return (
         <canvas
@@ -14,9 +19,10 @@ const Canvas: React.FC = () => {
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onKeyDown={handleKeyDown}
-        >
-            Canvas
-        </canvas>
+            onTouchStart={handleMouseDown}
+            onTouchMove={handleMouseMove}
+            onTouchCancel={handleMouseUp}
+        />
     );
 };
 
