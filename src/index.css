@@ -4,5 +4,5 @@
 
 html,
 body {
-    @apply overscroll-y-contain;
+    @apply overflow-hidden overscroll-y-contain;
 }
