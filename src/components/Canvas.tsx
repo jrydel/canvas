@@ -2,12 +2,12 @@ import React from 'react';
 import { useCanvas } from './hooks/useCanvas';
 
 const Canvas: React.FC = () => {
-    const { handlePaste, handleMouseDown, handleMouseMove, handleMouseUp, handleKeyDown } = useCanvas('canvas');
+    const { handleStart, handleMove, handleEnd } = useCanvas('canvas');
 
-    React.useEffect(() => {
-        window.addEventListener('paste', handlePaste);
-        return () => window.removeEventListener('paste', handlePaste);
-    }, []);
+    // React.useEffect(() => {
+    //     window.addEventListener('paste', handlePaste);
+    //     return () => window.removeEventListener('paste', handlePaste);
+    // }, []);
 
     return (
         <canvas
@@ -15,13 +15,12 @@ const Canvas: React.FC = () => {
             className="fixed inset-0"
             width={window.innerWidth}
             height={window.innerHeight}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onKeyDown={handleKeyDown}
-            onTouchStart={handleMouseDown}
-            onTouchMove={handleMouseMove}
-            onTouchCancel={handleMouseUp}
+            onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
+            onMouseMove={(e) => handleMove(e.clientX, e.clientY)}
+            onMouseUp={(e) => handleEnd(e.clientX, e.clientY)}
+            onTouchStart={(e) => handleStart(e.touches[0].clientX, e.touches[0].clientY)}
+            onTouchMove={(e) => handleMove(e.touches[0].clientX, e.touches[0].clientY)}
+            onTouchCancel={(e) => handleEnd(e.touches[0].clientX, e.touches[0].clientY)}
         />
     );
 };

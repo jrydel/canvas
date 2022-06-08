@@ -89,18 +89,11 @@ export const useCanvas = (id: string) => {
         }
     };
 
-    const addOrUpdateElement = (element: Element) => {
-        const elementsCopy = [...elements];
-        elementsCopy[element.id] = element;
-        setElements(elementsCopy);
-    };
-
-    const handleMouseDown = (e: any) => {
-        const { clientX, clientY } = e;
+    const handleStart = (x: number, y: number) => {
         if (selectedAction === ToolsAction.SELECTION) {
-            const element = getElementAtMousePosition(clientX, clientY, elements);
+            const element = getElementAtMousePosition(x, y, elements);
             if (element) {
-                const elementWithOffset: Element = { ...element, offsetX: clientX - element.x1, offsetY: clientY - element.y1, selected: true };
+                const elementWithOffset: Element = { ...element, offsetX: x - element.x1, offsetY: y - element.y1, selected: true };
                 // TODO we should check here if element is already in array
                 setSelectedElements((prev) => [...prev, elementWithOffset]);
                 setCanvasAction(CanvasAction.MOVING);
@@ -110,10 +103,10 @@ export const useCanvas = (id: string) => {
         } else {
             addOrUpdateElement({
                 id: elements.length,
-                x1: clientX,
-                y1: clientY,
-                x2: clientX,
-                y2: clientY,
+                x1: x,
+                y1: y,
+                x2: x,
+                y2: y,
                 action: selectedAction,
                 color: selectedColor,
                 width: selectedWidth,
@@ -122,50 +115,21 @@ export const useCanvas = (id: string) => {
         }
     };
 
-    const handlePaste = (e: any) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        const image = e.clipboardData.files[0];
-        console.log(image);
-
-        if (image) {
-            const objectUrl = URL.createObjectURL(image);
-            addOrUpdateElement({
-                id: elements.length,
-                x1: 0,
-                y1: 0,
-                x2: 200,
-                y2: 200,
-                action: ToolsAction.IMAGE,
-                url: objectUrl,
-                width: selectedWidth,
-                color: selectedColor,
-            });
-        }
-    };
-
-    const handleMouseMove = (e: any) => {
-        const { clientX, clientY } = e;
-
-        if (selectedAction === ToolsAction.SELECTION) {
-            e.target.style.cursor = getElementAtMousePosition(clientX, clientY, elements) ? 'move' : 'default';
-        }
-
+    const handleMove = (x: number, y: number) => {
         if (canvasAction === CanvasAction.DRAWING) {
             const index = elements.length - 1;
             const element = elements[index];
 
             if (selectedAction === ToolsAction.DRAW) {
-                const path = [...(element.path || []), { x: clientX, y: clientY }];
+                const path = [...(element.path || []), { x, y }];
                 addOrUpdateElement({ ...element, path });
             } else {
-                addOrUpdateElement({ ...element, x2: clientX, y2: clientY });
+                addOrUpdateElement({ ...element, x2: x, y2: y });
             }
         } else if (canvasAction === CanvasAction.MOVING) {
             for (const element of selectedElements) {
-                const tempX1 = clientX - (element.offsetX || 0);
-                const tempY1 = clientY - (element.offsetY || 0);
+                const tempX1 = x - (element.offsetX || 0);
+                const tempY1 = y - (element.offsetY || 0);
                 const width = element.x2 - element.x1;
                 const height = element.y2 - element.y1;
                 addOrUpdateElement({ ...element, x1: tempX1, y1: tempY1, x2: tempX1 + width, y2: tempY1 + height });
@@ -173,13 +137,40 @@ export const useCanvas = (id: string) => {
         }
     };
 
-    const handleMouseUp = (e: any) => {
+    const handleEnd = (x: number, y: number) => {
         setCanvasAction(CanvasAction.NONE);
     };
 
-    const handleKeyDown = (e: any) => {};
+    const addOrUpdateElement = (element: Element) => {
+        const elementsCopy = [...elements];
+        elementsCopy[element.id] = element;
+        setElements(elementsCopy);
+    };
 
-    return { handlePaste, handleMouseDown, handleMouseMove, handleMouseUp, handleKeyDown };
+    // const handlePaste = (e: any) => {
+    //     e.preventDefault();
+    //     e.stopPropagation();
+
+    //     const image = e.clipboardData.files[0];
+    //     console.log(image);
+
+    //     if (image) {
+    //         const objectUrl = URL.createObjectURL(image);
+    //         addOrUpdateElement({
+    //             id: elements.length,
+    //             x1: 0,
+    //             y1: 0,
+    //             x2: 200,
+    //             y2: 200,
+    //             action: ToolsAction.IMAGE,
+    //             url: objectUrl,
+    //             width: selectedWidth,
+    //             color: selectedColor,
+    //         });
+    //     }
+    // };
+
+    return { handleStart, handleMove, handleEnd };
 };
 
 const distance = (a: { x: number; y: number }, b: { x: number; y: number }) => Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
